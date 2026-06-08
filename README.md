@@ -1,7 +1,7 @@
 # Fastino Labs — LLM Inference System Design
 
 > **Submission for:** Fastino Labs Take-Home Assignment  
-> **Design notebook (architecture, sizing math, trade-offs):** [Colab](https://colab.research.google.com/drive/1sApVD8gHrOfdmXCBbLLvGdpmIlSVp8wU)  
+> **Design notebook (architecture, sizing math, trade-offs):** [Colab](https://colab.research.google.com/drive/1SHAw2Oug7p_oBmxegJlV5Ca3O9sKPGQm?usp=sharing)  
 > **C4 diagram:** [IcePanel](https://s.icepanel.io/X7127RWouBNohc/BKOL)
 
 ---
