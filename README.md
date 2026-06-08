@@ -25,29 +25,35 @@
 
 ## Architecture
 
-```
-  Clients
-     │  HTTPS POST /v1/completions
-     ▼
-┌────────────────────────────────────────────────────────────────────┐
-│                         INGRESS TIER                               │
-│  Load Balancer (Envoy) → Tenant-Aware Router → Rate Limiter        │
-│                        → Admission Queue                           │
-└───────────────────────────┬────────────────────────────────────────┘
-                            │
-┌───────────────────────────▼────────────────────────────────────────┐
-│                        INFERENCE TIER                               │
-│  Cache-Aware Router → vLLM Workers (PagedAttention, Cont. Batch)   │
-│                     → Chunked Prefill Scheduler                    │
-└───────────────────────────┬────────────────────────────────────────┘
-                            │ token stream
-┌───────────────────────────▼────────────────────────────────────────┐
-│                        STREAMING TIER                               │
-│  SSE Handler (per-request asyncio.Queue → text/event-stream)       │
-└────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    Client(["Client"])
+
+    subgraph INGRESS["INGRESS TIER"]
+        LB["Load Balancer\n(Envoy)"]
+        Router["Tenant-Aware Router"]
+        RL["Token-Cost Rate Limiter"]
+        AQ["Admission Queue"]
+    end
+
+    subgraph INFERENCE["INFERENCE TIER"]
+        CR["Cache-Aware Router"]
+        Workers["vLLM Workers\n(PagedAttention · Continuous Batching)"]
+        Sched["Chunked Prefill Scheduler"]
+    end
+
+    subgraph STREAMING["STREAMING TIER"]
+        SSE["SSE Handler\n(asyncio.Queue per request)"]
+    end
+
+    Client -->|"HTTPS POST /v1/completions"| LB
+    LB --> Router --> RL --> AQ
+    AQ --> CR --> Workers --> Sched
+    Sched -->|"token stream"| SSE
+    SSE -->|"text/event-stream"| Client
 ```
 
-See the [Colab notebook](https://colab.research.google.com/drive/1sApVD8gHrOfdmXCBbLLvGdpmIlSVp8wU) for component decisions, sizing math, and trade-off analysis.
+See the [Colab notebook](https://colab.research.google.com/drive/1SHAw2Oug7p_oBmxegJlV5Ca3O9sKPGQm?usp=sharing) for component decisions, sizing math, and trade-off analysis.
 
 ---
 
